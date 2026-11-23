@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nature Cams — Ohio &amp; the Virginia Mountains</title>
+  <meta name="description" content="Free public nature, trail, and wildlife cams from Ohio and the Virginia mountains. No account required.">
+  <style>
+    :root {
+      --bg: #0c1410;
+      --bg-elev: #132018;
+      --card: #17261c;
+      --card-hover: #1c2e22;
+      --line: #2a3f32;
+      --text: #e8eee4;
+      --muted: #9aa894;
+      --gold: #c4a35a;
+      --gold-dim: #8a733c;
+      --moss: #7d9b6e;
+      --danger: #c47a5a;
+      --shadow: 0 12px 40px rgba(0, 0, 0, .35);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #1a3324 0%, transparent 55%),
+        radial-gradient(900px 500px at 110% 0%, #24301a 0%, transparent 50%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    header {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 2.2rem 1.25rem 1.1rem;
+    }
+    .eyebrow {
+      color: var(--gold);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-size: .72rem;
+      font-weight: 600;
+      margin: 0 0 .4rem;
+    }
+    h1 {
+      font-family: Georgia, "Palatino Linotype", Palatino, "Times New Roman", serif;
+      font-weight: 600;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.15;
+      margin: 0 0 .6rem;
+    }
+    .lede {
+      max-width: 42rem;
+      color: var(--muted);
+      margin: 0;
+      font-size: 1.02rem;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1.1rem 1.25rem 0;
+    }
+    .tabs button {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: .4rem 1rem;
+      font: inherit;
+      font-size: .92rem;
+      cursor: pointer;
+    }
+    .tabs button:hover { color: var(--text); border-color: var(--gold-dim); }
+    .tabs button[aria-selected="true"] {
+      background: var(--gold);
+      color: #1a1408;
+      border-color: var(--gold);
+      font-weight: 600;
+    }
+    .grid {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1.15rem 1.25rem 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      text-align: left;
+      color: inherit;
+      font: inherit;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 0 rgba(255,255,255,.03);
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+    .card:hover, .card:focus {
+      background: var(--card-hover);
+      border-color: var(--gold-dim);
+      transform: translateY(-2px);
+      outline: none;
+    }
+    .thumb {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #0a120e;
+      overflow: hidden;
+    }
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb .ph {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: var(--moss);
+      font-size: .9rem;
+      background:
+        linear-gradient(160deg, #1c3326, #101a14 70%);
+    }
+    .badge {
+      position: absolute;
+      top: .55rem;
+      left: .55rem;
+      background: rgba(10, 16, 12, .82);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: .7rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: .2rem .55rem;
+    }
+    .badge.live { color: #d6f0c8; border-color: #3d5c3a; }
+    .badge.live::before {
+      content: "";
+      display: inline-block;
+      width: .45rem;
+      height: .45rem;
+      border-radius: 50%;
+      background: #6fbf5a;
+      margin-right: .35rem;
+      vertical-align: middle;
+      box-shadow: 0 0 0 3px rgba(111, 191, 90, .25);
+    }
+    .badge.shot { color: var(--gold); }
+    .meta { padding: .85rem 1rem 1rem; }
+    .meta h2 {
+      font-size: 1.05rem;
+      margin: 0 0 .25rem;
+      font-weight: 650;
+      letter-spacing: -.01em;
+    }
+    .meta p { margin: 0; color: var(--muted); font-size: .88rem; }
+    .empty {
+      display: none;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem;
+      color: var(--muted);
+    }
+    footer {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 1.25rem 2.5rem;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+    footer a { color: var(--moss); }
+    dialog {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--bg-elev);
+      color: var(--text);
+      padding: 0;
+      width: min(960px, calc(100vw - 1.5rem));
+      box-shadow: var(--shadow);
+    }
+    dialog::backdrop { background: rgba(4, 8, 6, .72); }
+    .player-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: .9rem 1rem .7rem;
+    }
+    .player-head h2 { margin: 0; font-size: 1.15rem; }
+    .player-head p { margin: .15rem 0 0; color: var(--muted); font-size: .88rem; }
+    .close {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 8px;
+      font: inherit;
+      cursor: pointer;
+      padding: .25rem .6rem;
+      flex: 0 0 auto;
+    }
+    .frame-wrap {
+      position: relative;
+      background: #000;
+      aspect-ratio: 16 / 9;
+    }
+    .frame-wrap iframe, .frame-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      object-fit: contain;
+      background: #000;
+    }
+    .ext {
+      padding: 1rem 1.1rem 1.2rem;
+    }
+    .ext p { margin: 0 0 .85rem; color: var(--muted); }
+    .btn {
+      display: inline-block;
+      background: var(--gold);
+      color: #1a1408;
+      text-decoration: none;
+      font-weight: 650;
+      border-radius: 999px;
+      padding: .55rem 1rem;
+      margin: 0 .4rem .4rem 0;
+    }
+    .btn.ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .note { color: var(--muted); font-size: .85rem; margin-top: .4rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">Public nature cams</p>
+    <h1>Ohio &amp; the Virginia Mountains</h1>
+    <p class="lede">Watch live wildlife, trail, and mountain cams from public streams. Some go dark at night or off-season. Still-image cams refresh on their own schedule. Nothing here costs money or needs an account.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Region">
+    <button type="button" role="tab" id="tab-all" aria-selected="true" data-filter="all">All</button>
+    <button type="button" role="tab" id="tab-ohio" aria-selected="false" data-filter="ohio">Ohio</button>
+    <button type="button" role="tab" id="tab-virginia" aria-selected="false" data-filter="virginia">Virginia Mountains</button>
+  </div>
+
+  <div id="grid" class="grid"></div>
+  <p id="empty" class="empty">No cams in this view.</p>
+
+  <footer>
+    <p>Streams were checked on the evening of Sunday, November 22, 2026 (America/New_York). YouTube video IDs can change when an operator restarts a stream; use the source link if a player is blank. Official park and conservancy players often cannot be embedded on this page, so those cards open the live view on the source site. All feeds belong to their operators and may include ads or chat on the original page.</p>
+    <p><a href="https://github.com/darkgamegod/nature-cams">Source on GitHub</a></p>
+  </footer>
+
+  <dialog id="player" aria-labelledby="player-title">
+    <div class="player-head">
+      <div>
+        <h2 id="player-title"></h2>
+        <p id="player-sub"></p>
+      </div>
+      <button type="button" class="close" id="close-btn" aria-label="Close">Close</button>
+    </div>
+    <div id="player-body"></div>
+  </dialog>
+
+  <script>
+    const CAMS = [
+      {
+        id: "bwhq-feeder",
+        name: "Northeast Ohio Bird Feeder Cam",
+        location: "Akron area, near Cuyahoga Valley National Park, Ohio",
+        region: "ohio",
+        kind: "live",
+        badge: "Live video",
+        play: "youtube",
+        videoId: "QDeHSA9wsPA",
+        source: "https://www.youtube.com/watch?v=QDeHSA9wsPA",
+        sourceLabel: "Bird Watching HQ on YouTube",
+        thumb: "https://i.ytimg.com/vi/QDeHSA9wsPA/hqdefault_live.jpg"
+      },
+      {
+        id: "bwhq-wildlife",
+        name: "Northeast Ohio Backyard Wildlife Cam",
+        location: "Ground-level feeder cam, Akron area near Cuyahoga Valley National Park, Ohio",
+        region: "ohio",
+        kind: "live",
+        badge: "Live video",
+        play: "youtube",
+        videoId: "b6-zNf3BGy0",
+        source: "https://www.youtube.com/watch?v=b6-zNf3BGy0",
+        sourceLabel: "Bird Watching HQ on YouTube",
+        thumb: "https://i.ytimg.com/vi/b6-zNf3BGy0/hqdefault_live.jpg"
+      },
+      {
+        id: "brians-feeder",
+        name: "Brian's Birds Unlimited Feeder Cam",
+        location: "Strongsville, Ohio",
+        region: "ohio",
+        kind: "live",
+        badge: "Live video",
+        play: "youtube",
+        videoId: "nnvl55AHHoo",
+        source: "https://www.youtube.com/watch?v=nnvl55AHHoo",
+        sourceLabel: "Brian’s Birds Unlimited on YouTube",
+        thumb: "https://i.ytimg.com/vi/nnvl55AHHoo/hqdefault_live.jpg"
+      },
+      {
+        id: "lmc-eagle-1",
+        name: "Little Miami Bald Eagle Cam 1",
+        location: "Little Miami River, Ohio",
+        region: "ohio",
+        kind: "live",
+        badge: "Live video",
+        play: "youtube",
+        videoId: "kHOdKaPsFk8",
+        source: "https://www.youtube.com/watch?v=kHOdKaPsFk8",
+        sourceLabel: "Little Miami Conservancy on YouTube",
+        thumb: "https://i.ytimg.com/vi/kHOdKaPsFk8/hqdefault_live.jpg"
+      },
+      {
+        id: "lmc-eagle-2",
+        name: "Little Miami Bald Eagle Cam 2",
+        location: "Little Miami River, Ohio",
+        region: "ohio",
+        kind: "live",
+        badge: "Live video",
+        play: "youtube",
+        videoId: "5C93_ZzJd1U",
+        source: "https://www.youtube.com/watch?v=5C93_ZzJd1U",
+        sourceLabel: "Little Miami Conservancy on YouTube",
+        thumb: "https://i.ytimg.com/vi/5C93_ZzJd1U/hqdefault_live.jpg"
+      },
+      {
+        id: "lmc-osprey",
+        name: "Little Miami Osprey Cam",
+        location: "Little Miami River, Ohio",
+        region: "ohio",
+        kind: "live",
+        badge: "Live video",
+        play: "youtube",
+        videoId: "Uhw3A1UvjG8",
+        source: "https://www.youtube.com/watch?v=Uhw3A1UvjG8",
+        sourceLabel: "Little Miami Conservancy on YouTube",
+        thumb: "https://i.ytimg.com/vi/Uhw3A1UvjG8/hqdefault_live.jpg"
+      },
+      {
+        id: "clc-eagles",
+        name: "Bonnie & Clyde Eagle Cam",
+        location: "Bortz Family Nature Preserve, Cincinnati, Ohio",
+        region: "ohio",
+        kind: "live",
+        badge: "Live video",
+        play: "external",
+        source: "https://www.cardinallandconservancy.org/eagle-camera/",
+        sourceLabel: "Cardinal Land Conservancy",
+        note: "Two nest cameras on the official page. They run on solar power and may switch off when batteries are low.",
+        thumb: "https://storage.hdontap.com/wowza_stream_thumbnails/snapshot_hosb1_cardinal-large_ptz.stream.jpg"
+      },
+      {
+        id: "lake-bobcat",
+        name: "Lake Metroparks Wildlife Center Cam",
+        location: "Kevin P. Clinton Wildlife Center, Penitentiary Glen Reservation, Lake County, Ohio",
+        region: "ohio",
+        kind: "live",
+        badge: "Live video",
+        play: "iframe",
+        embed: "https://pg-wildlife-webcam.click2stream.com/",
+        source: "https://www.lakemetroparks.com/webcams/",
+        sourceLabel: "Lake Metroparks webcams",
+        note: "A young female bobcat is in care here until a planned spring 2027 release. If the player is blank, use the official site link.",
+        thumb: "https://www.lakemetroparks.com/wp-content/uploads/2022/08/Wildlife-Cam.jpg"
+      },
+      {
+        id: "shen-meadow",
+        name: "Big Meadows Live",
+        location: "Shenandoah National Park, Skyline Drive mile 51, Virginia",
+        region: "virginia",
+        kind: "live",
+        badge: "Live video",
+        play: "external",
+        source: "https://www.nps.gov/shen/learn/photosmultimedia/bigmeadows_livecam.htm",
+        sourceLabel: "National Park Service",
+        note: "A 4K tour of the meadow, where wildlife often appears. The official player cannot be embedded here.",
+        thumb: "https://storage.hdontap.com/wowza_stream_thumbnails/snapshot_hosbdvr2_shenandoah_np-meadow_cam.stream.jpg"
+      },
+      {
+        id: "shen-valley",
+        name: "Shenandoah Valley Webcam",
+        location: "View of the Blue Ridge from the Shenandoah Valley, Virginia",
+        region: "virginia",
+        kind: "live",
+        badge: "Live video",
+        play: "external",
+        source: "https://www.nps.gov/shen/learn/photosmultimedia/shenvalleycam.htm",
+        sourceLabel: "National Park Service",
+        note: "Scans Marys Rock, Stony Man, and Hawksbill. Best during the day; the official player cannot be embedded here.",
+        thumb: "https://storage.hdontap.com/wowza_stream_thumbnails/snapshot_hosbdvr2_shenandoah_np-snpa_office-ptz.stream.jpg"
+      },
+      {
+        id: "va-elk",
+        name: "Virginia Elk Cam",
+        location: "Buchanan County, southwest Virginia mountains",
+        region: "virginia",
+        kind: "live",
+        badge: "Live video",
+        play: "external",
+        source: "https://dwr.virginia.gov/elk-cam/",
+        sourceLabel: "Virginia Department of Wildlife Resources",
+        note: "Best early morning and around dusk. You may also see turkeys or other wildlife. The official player cannot be embedded here.",
+        thumb: "https://storage.hdontap.com/wowza_stream_thumbnails/snapshot_hosb1_vdgif_4k_ptz_elk-cam.stream.jpg"
+      },
+      {
+        id: "wcv-critters",
+        name: "Wildlife Center of Virginia Critter Cams",
+        location: "Waynesboro, Virginia, in the Shenandoah Valley",
+        region: "virginia",
+        kind: "live",
+        badge: "Live video",
+        play: "external",
+        source: "https://wildlifecenter.org/critter-corner/critter-cams",
+        sourceLabel: "Wildlife Center of Virginia",
+        note: "Three live feeds: Buddy the bald eagle ambassador, plus two views of black bear cubs in care until a planned spring 2027 release."
+      },
+      {
+        id: "shen-pinnacles",
+        name: "Mountain View Cam",
+        location: "Pinnacles area, Skyline Drive mile 36.7, looking toward Luray, Virginia",
+        region: "virginia",
+        kind: "snapshot",
+        badge: "Snapshot",
+        play: "snapshot",
+        image: "https://phenocam.nau.edu/data/latest/shenandoah.jpg",
+        source: "https://www.nps.gov/shen/learn/photosmultimedia/view_webcam.htm",
+        sourceLabel: "National Park Service / PhenoCam",
+        note: "A still image that updates on its own schedule, not a video stream."
+      }
+    ];
+
+    const grid = document.getElementById("grid");
+    const empty = document.getElementById("empty");
+    const dialog = document.getElementById("player");
+    const titleEl = document.getElementById("player-title");
+    const subEl = document.getElementById("player-sub");
+    const bodyEl = document.getElementById("player-body");
+    let filter = "all";
+
+    function bust(url) {
+      const join = url.includes("?") ? "&" : "?";
+      return url + join + "t=" + Date.now();
+    }
+
+    function render() {
+      const list = CAMS.filter((c) => filter === "all" || c.region === filter);
+      grid.innerHTML = "";
+      empty.style.display = list.length ? "none" : "block";
+      list.forEach((cam) => {
+        const btn = document.createElement("button");
+        btn.className = "card";
+        btn.type = "button";
+        btn.addEventListener("click", () => openCam(cam));
+        const thumbUrl = cam.kind === "snapshot" ? bust(cam.image) : (cam.thumb ? bust(cam.thumb) : "");
+        btn.innerHTML =
+          '<div class="thumb">' +
+            (thumbUrl
+              ? '<img alt="" src="' + thumbUrl + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'"><div class="ph" style="display:none">No preview</div>'
+              : '<div class="ph">Opens official live cams</div>') +
+            '<span class="badge ' + (cam.kind === "snapshot" ? "shot" : "live") + '">' + cam.badge + "</span>" +
+          "</div>" +
+          '<div class="meta"><h2>' + cam.name + "</h2><p>" + cam.location + "</p></div>";
+        grid.appendChild(btn);
+      });
+    }
+
+    function openCam(cam) {
+      titleEl.textContent = cam.name;
+      subEl.textContent = cam.location;
+      bodyEl.innerHTML = "";
+      if (cam.play === "youtube") {
+        const wrap = document.createElement("div");
+        wrap.className = "frame-wrap";
+        wrap.innerHTML =
+          '<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen ' +
+          'title="' + cam.name + '" src="https://www.youtube-nocookie.com/embed/' + cam.videoId + '?autoplay=1&rel=0"></iframe>';
+        bodyEl.appendChild(wrap);
+        bodyEl.insertAdjacentHTML(
+          "beforeend",
+          '<div class="ext"><a class="btn ghost" href="' + cam.source + '" target="_blank" rel="noopener noreferrer">' + cam.sourceLabel + "</a></div>"
+        );
+      } else if (cam.play === "iframe") {
+        const wrap = document.createElement("div");
+        wrap.className = "frame-wrap";
+        wrap.innerHTML = '<iframe allow="autoplay; fullscreen" allowfullscreen title="' + cam.name + '" src="' + cam.embed + '"></iframe>';
+        bodyEl.appendChild(wrap);
+        bodyEl.insertAdjacentHTML("beforeend", externalLinks(cam));
+      } else if (cam.play === "snapshot") {
+        const wrap = document.createElement("div");
+        wrap.className = "frame-wrap";
+        wrap.innerHTML = '<img alt="' + cam.name + '" src="' + bust(cam.image) + '">';
+        bodyEl.appendChild(wrap);
+        bodyEl.insertAdjacentHTML("beforeend", externalLinks(cam));
+      } else {
+        if (cam.thumb) {
+          const wrap = document.createElement("div");
+          wrap.className = "frame-wrap";
+          wrap.innerHTML = '<img alt="Recent frame from ' + cam.name + '" src="' + bust(cam.thumb) + '">';
+          bodyEl.appendChild(wrap);
+        }
+        bodyEl.insertAdjacentHTML("beforeend", externalLinks(cam, true));
+      }
+      if (typeof dialog.showModal === "function") dialog.showModal();
+    }
+
+    function externalLinks(cam, primary) {
+      const lead = primary
+        ? "<p>This live player can only be shown on the official site. Use the button below to watch it there.</p>"
+        : "";
+      const note = cam.note ? '<p class="note">' + cam.note + "</p>" : "";
+      return (
+        '<div class="ext">' + lead +
+        '<a class="btn" href="' + cam.source + '" target="_blank" rel="noopener noreferrer">Watch on ' + cam.sourceLabel + "</a>" +
+        note + "</div>"
+      );
+    }
+
+    document.querySelectorAll(".tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        filter = btn.dataset.filter;
+        document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", b === btn ? "true" : "false"));
+        render();
+      });
+    });
+
+    document.getElementById("close-btn").addEventListener("click", () => dialog.close());
+    dialog.addEventListener("close", () => { bodyEl.innerHTML = ""; });
+    dialog.addEventListener("click", (e) => { if (e.target === dialog) dialog.close(); });
+
+    render();
+  </script>
+</body>
+</html>
